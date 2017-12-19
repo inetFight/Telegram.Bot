@@ -46,10 +46,10 @@ public class Warehouse {
 		JSONArray data = (JSONArray) jsonObject.get("data");
 		JSONObject innerObj = (JSONObject) data.get(0);
 		JSONArray array = (JSONArray) innerObj.get("0");
-
+		
 		JSONObject Obj = null;
 		if(!array.isEmpty()){
-			Obj = (JSONObject) array.get(0);
+			Obj = (JSONObject) array.get(1);
 			return (String) Obj.get("AddressRef");
 		}
 		
@@ -74,7 +74,7 @@ public class Warehouse {
 //		System.out.println(EntityUtils.toString(reqEntity, "UTF-8"));
 		JSONParser jsonParser = new JSONParser();
 		JSONObject jsonObject = (JSONObject) jsonParser.parse(otvet);
-		
+//		System.out.println( AddressRef + " -" + otvet);
 		JSONArray data = (JSONArray) jsonObject.get("data");
 		JSONObject innerObj = null;
 		if(!data.isEmpty()){

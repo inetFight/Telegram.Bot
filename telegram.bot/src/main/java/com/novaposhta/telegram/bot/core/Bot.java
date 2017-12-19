@@ -8,7 +8,9 @@ import java.util.ResourceBundle;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 import org.telegram.telegrambots.api.methods.ParseMode;
+import org.telegram.telegrambots.api.methods.send.SendLocation;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
+import org.telegram.telegrambots.api.objects.Location;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.User;
@@ -31,15 +33,26 @@ public class Bot extends TelegramLongPollingBot{
 	}
 
 	public void onUpdateReceived(Update e) {
-
+		
 		Message msg = e.getMessage(); // Это нам понадобится
 		String txt = msg.getText();
+		//Обрабатываем геопозицию, ищем всегда ближайшее отделение
 		if(msg.getLocation() != null){
 			try {
 				String address = Warehouse.findNearestWarehouse(msg.getLocation().getLatitude(), msg.getLocation().getLongitude());
 				if(address != null){
 					JSONObject obj = Warehouse.getInfoWarehouse(address);
-					sendMsg(msg, Messages.getWarehouseMessageAnswer(msg, obj), null);
+					if(obj != null){
+						Float Latitude = Float.parseFloat((String)obj.get("Latitude"));
+						Float Longitude = Float.parseFloat((String)obj.get("Longitude"));
+						
+						sendMsg(msg, Messages.getWarehouseMessageAnswer(msg, obj), null);
+						sendLoc(msg, Latitude, Longitude, null);
+					}
+					else {
+						sendMsg(msg, "Нифига не найдено", null);
+					}
+					
 				}
 				else {
 					sendMsg(msg, "Нифига не найдено", null);
@@ -52,6 +65,7 @@ public class Bot extends TelegramLongPollingBot{
 			}
 		}
 		
+		//Обрабатываем сообщения
 		if(txt != null){
 			switch (txt) {
 			case "/start":
@@ -115,6 +129,7 @@ public class Bot extends TelegramLongPollingBot{
 	private void sendMsg(Message msg, String text, List<KeyboardRow> keyboard) {
 		
 		SendMessage sendMessage = new SendMessage();
+		
 		sendMessage.setParseMode(ParseMode.HTML);
 		 // Создаем клавиуатуру
 		if(keyboard != null){
@@ -129,12 +144,43 @@ public class Bot extends TelegramLongPollingBot{
         sendMessage.setChatId(msg.getChatId().toString());
 //        sendMessage.setReplyToMessageId(msg.getMessageId());
         sendMessage.setText(text);
+        
         try {
             sendMessage(sendMessage);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
 		
+		
+	}
+	
+	private void sendLoc(Message msg, Float Latitude, Float Longitude , List<KeyboardRow> keyboard) {
+		
+		SendLocation sendLocation = new SendLocation();
+		
+//		sendLocation.setParseMode(ParseMode.HTML);
+		 // Создаем клавиуатуру
+		if(keyboard != null){
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        sendLocation.setReplyMarkup(replyKeyboardMarkup);
+        replyKeyboardMarkup.setSelective(true);
+        replyKeyboardMarkup.setResizeKeyboard(true);
+        replyKeyboardMarkup.setOneTimeKeyboard(false);
+
+        replyKeyboardMarkup.setKeyboard(keyboard);
+		}
+		sendLocation.setChatId(msg.getChatId().toString());
+		sendLocation.setReplyToMessageId(msg.getMessageId());
+		
+		sendLocation.setLatitude(Latitude);
+		sendLocation.setLongitude(Longitude);
+
+        
+        try {
+        	sendLocation(sendLocation);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
 		
 		
 	}

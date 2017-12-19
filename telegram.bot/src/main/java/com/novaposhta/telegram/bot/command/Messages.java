@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import org.json.simple.JSONObject;
+import org.telegram.telegrambots.api.objects.Location;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardButton;
@@ -98,8 +99,16 @@ public class Messages {
 	}
 	
 	public static String getWarehouseMessageAnswer(Message msg, JSONObject obj){
-		ResourceBundle lang = Utf8ResourceBundle.getBundle("data_" + UserLanguage.getUserLanguage(msg));
-		
-		return new String ((String) obj.get("Description") + "\n" + (String) obj.get("Number"));
+		if(UserLanguage.getUserLanguage(msg).equals("ua")){
+			return new String ((String) obj.get("Description"));
+		}
+		else if(UserLanguage.getUserLanguage(msg).equals("ru")){
+			return new String ((String) obj.get("DescriptionRu"));
+		}
+		else {
+			return new String ((String) obj.get("Description"));
+		}
 	}
+	
+
 }
