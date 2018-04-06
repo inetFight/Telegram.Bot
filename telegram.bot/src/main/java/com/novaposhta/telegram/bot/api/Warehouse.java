@@ -28,12 +28,14 @@ public class Warehouse {
 		URIBuilder builder = new URIBuilder("https://api.novaposhta.ua/v2.0/json/");
 		URI uri = builder.build();
 		HttpPost request = new HttpPost(uri);
-		StringEntity reqEntity = new StringEntity("{\"modelName\": \"Address\","
-												+ "\"calledMethod\": \"findNearestWarehouse\","
-												+ "\"methodProperties\": {"
-												+ "\"SearchStringArray\": ["
-												+ "\"" + latitude + "," + longitude + "\""
-												+ "]}}");
+		StringEntity reqEntity = new StringEntity("{"
+			   								+"\"apiKey\": \"9ff4e54ed60f2dad1bee0f68cbf4f140\","
+			   								+"\"modelName\": \"Counterparty\","
+			   								+"\"calledMethod\": \"getCatalogCounterparty\","
+			   								+"\"methodProperties\": {"
+													+"\"Phone\": \"0936444949\","
+													+"\"LastName\": \"Єре\"}}"
+		);
 		request.setEntity(reqEntity);
 		HttpResponse response = httpclient.execute(request);
 		
